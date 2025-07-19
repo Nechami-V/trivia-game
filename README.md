@@ -134,4 +134,4 @@ MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contact
 
-Developer Name - email@example.com
+Developer Name - nech397@gmail.com
