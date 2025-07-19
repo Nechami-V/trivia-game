@@ -1,18 +1,18 @@
-# משחק טריוויה - פלטפורמה חינוכית
+# Trivia Game - Educational Platform
 
-פלטפורמה חוצת פלטפורמות למשחקי טריוויה ללימוד אוצר מילים בשפות שונות, המיועדת לילדים.
+Cross-platform trivia game platform for learning vocabulary in different languages, designed for children.
 
-## תכונות עיקריות
+## Key Features
 
-- 🎮 משחק טריוויה אינטראקטיבי עם טיימר
-- 🔊 תמיכה בהקראת מילים (אשכנזי/ספרדי)
-- 📊 מערכת ניקוד ושיאים
-- 💰 מודל עסקי freemium (30 משחקים חינמיים)
-- 🔐 מערכת אימות מאובטחת
-- 📱 תמיכה במובייל ודפדפן
-- 🎛️ פאנל ניהול מתקדם
+- 🎮 Interactive trivia game with timer
+- 🔊 Word pronunciation support (Ashkenazi/Sephardic)
+- 📊 Scoring and leaderboard system
+- 💰 Freemium business model (30 free games)
+- 🔐 Secure authentication system
+- 📱 Mobile and web browser support
+- 🎛️ Advanced admin panel
 
-## טכנולוgiות
+## Technologies
 
 **Backend:**
 - Node.js + Express.js
@@ -21,95 +21,95 @@
 - Swagger API Documentation
 - Stripe Payment Integration
 
-**Frontend (מתוכנן):**
+**Frontend (Planned):**
 - React Native + Expo
 - React.js (Admin Panel)
 
-## התקנה והפעלה
+## Installation and Setup
 
-### דרישות מוקדמות
+### Prerequisites
 - Node.js (v18+)
 - MongoDB
-- npm או yarn
+- npm or yarn
 
-### התקנה
+### Installation
 
 ```bash
-# שכפול הפרויקט
+# Clone the project
 git clone https://github.com/your-username/trivia-game.git
 cd trivia-game
 
-# התקנת תלויות השרת
+# Install server dependencies
 cd server
 npm install
 
-# הגדרת משתני סביבה
+# Set up environment variables
 cp .env.example .env
-# ערוך את קובץ .env עם הנתונים שלך
+# Edit the .env file with your data
 
-# הפעלת השרת
+# Start the server
 npm start
 ```
 
-### הפעלה למפתחים
+### Development Setup
 
 ```bash
-# הפעלה עם nodemon
+# Run with nodemon
 npm run dev
 
-# טעינת נתוני דוגמה
+# Load sample data
 node seedData.js
 ```
 
 ## API Documentation
 
-לאחר הפעלת השרת, תיעוד ה-API זמין בכתובת:
+After starting the server, API documentation is available at:
 - **Swagger UI**: http://localhost:3000/api-docs
 - **Health Check**: http://localhost:3000/api/health
 
-## מבנה הפרויקט
+## Project Structure
 
 ```
 trivia-game/
 ├── server/                 # Backend (Node.js)
-│   ├── config/            # הגדרות מסד נתונים ו-Swagger
-│   ├── controllers/       # לוגיקה עסקית
-│   ├── middleware/        # אימות ואבטחה
-│   ├── models/           # מודלי MongoDB
-│   ├── routes/           # נתיבי API
-│   └── uploads/          # קבצי אודיו
-├── client/               # אפליקציית React Native (מתוכנן)
-├── admin-dashboard/      # פאנל ניהול (מתוכנן)
-└── assets/               # קבצי מדיה
+│   ├── config/            # Database and Swagger configuration
+│   ├── controllers/       # Business logic
+│   ├── middleware/        # Authentication and security
+│   ├── models/           # MongoDB models
+│   ├── routes/           # API routes
+│   └── uploads/          # Audio files
+├── client/               # React Native app (planned)
+├── admin-dashboard/      # Admin panel (planned)
+└── assets/               # Media files
 ```
 
 ## Features
 
-### משתמשים
-- [x] הרשמה והתחברות
-- [x] פרופיל משתמש
-- [x] הגדרות אישיות
-- [x] מעקב אחר כמות משחקים
+### Users
+- [x] Registration and login
+- [x] User profile
+- [x] Personal settings
+- [x] Game count tracking
 
-### משחק
-- [x] שאלות רב-ברירה
-- [x] טיימר (מהיר/רגיל)
-- [x] מערכת ניקוד
-- [x] שיאים אישיים וגלובליים
-- [x] השמעת הקראות
+### Game
+- [x] Multiple choice questions
+- [x] Timer (fast/normal)
+- [x] Scoring system
+- [x] Personal and global leaderboards
+- [x] Audio pronunciation
 
-### מערכת תשלום
-- [x] מודל freemium
-- [x] אינטגרציה עם Stripe
-- [ ] תמיכה בספקי סליקה ישראלים
+### Payment System
+- [x] Freemium model
+- [x] Stripe integration
+- [ ] Israeli payment providers support
 
-### ניהול
-- [x] CRUD שאלות
-- [ ] העלאת קבצי אודיו
-- [ ] ניהול משתמשים
-- [ ] דוחות וסטטיסטיקות
+### Administration
+- [x] Questions CRUD
+- [ ] Audio file upload
+- [ ] User management
+- [ ] Reports and statistics
 
-## משתני סביבה
+## Environment Variables
 
 ```env
 PORT=3000
@@ -120,18 +120,18 @@ STRIPE_SECRET_KEY=sk_test_your_stripe_key
 FREE_GAMES_LIMIT=30
 ```
 
-## תרומה לפרויקט
+## Contributing
 
-1. Fork הפרויקט
-2. צור branch חדש (`git checkout -b feature/amazing-feature`)
-3. Commit השינויים (`git commit -m 'Add some amazing feature'`)
-4. Push ל-branch (`git push origin feature/amazing-feature`)
-5. פתח Pull Request
+1. Fork the project
+2. Create a new branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## רישיון
+## License
 
-MIT License - ראה קובץ [LICENSE](LICENSE) לפרטים נוספים.
+MIT License - see the [LICENSE](LICENSE) file for details.
 
-## יצירת קשר
+## Contact
 
-שם המפתח - email@example.com
+Developer Name - email@example.com
