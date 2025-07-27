@@ -35,37 +35,27 @@ const seedData = async () => {
         {
           word: 'שלום',
           correctAnswer: 'Peace',
-          wrongAnswers: ['War', 'Love', 'Hate'],
-          difficulty: 'easy',
-          category: 'greetings'
+          wrongAnswers: ['War', 'Love', 'Hate']
         },
         {
           word: 'בית',
           correctAnswer: 'House',
-          wrongAnswers: ['Car', 'Tree', 'Book'],
-          difficulty: 'easy',
-          category: 'objects'
+          wrongAnswers: ['Car', 'Tree', 'Book']
         },
         {
           word: 'אהבה',
           correctAnswer: 'Love',
-          wrongAnswers: ['Anger', 'Fear', 'Joy'],
-          difficulty: 'medium',
-          category: 'emotions'
+          wrongAnswers: ['Anger', 'Fear', 'Joy']
         },
         {
           word: 'חכמה',
           correctAnswer: 'Wisdom',
-          wrongAnswers: ['Foolishness', 'Strength', 'Beauty'],
-          difficulty: 'hard',
-          category: 'concepts'
+          wrongAnswers: ['Foolishness', 'Strength', 'Beauty']
         },
         {
           word: 'מלך',
           correctAnswer: 'King',
-          wrongAnswers: ['Queen', 'Prince', 'Knight'],
-          difficulty: 'medium',
-          category: 'royalty'
+          wrongAnswers: ['Queen', 'Prince', 'Knight']
         }
       ];
 

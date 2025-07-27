@@ -6,6 +6,11 @@ const scoreSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  gameId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Game',
+    required: true
+  },
   score: {
     type: Number,
     required: true,
@@ -35,5 +40,7 @@ const scoreSchema = new mongoose.Schema({
 // Index for leaderboard queries
 scoreSchema.index({ score: -1, createdAt: -1 });
 scoreSchema.index({ userId: 1, createdAt: -1 });
+scoreSchema.index({ gameId: 1, score: -1 }); // For game-specific leaderboards
+scoreSchema.index({ gameId: 1, userId: 1, createdAt: -1 }); // For user's game history
 
 module.exports = mongoose.model('Score', scoreSchema);
