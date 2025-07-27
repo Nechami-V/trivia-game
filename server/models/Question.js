@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const questionSchema = new mongoose.Schema({
+  gameId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Game',
+    required: [true, 'Game ID is required']
+  },
   word: {
     type: String,
     required: [true, 'Word is required'],
@@ -29,16 +34,6 @@ const questionSchema = new mongoose.Schema({
     type: String,
     required: false
   },
-  difficulty: {
-    type: String,
-    enum: ['easy', 'medium', 'hard'],
-    default: 'medium'
-  },
-  category: {
-    type: String,
-    required: false,
-    trim: true
-  },
   isActive: {
     type: Boolean,
     default: true
@@ -48,6 +43,6 @@ const questionSchema = new mongoose.Schema({
 });
 
 // Index for faster queries
-questionSchema.index({ difficulty: 1, isActive: 1 });
+questionSchema.index({ gameId: 1, isActive: 1 });
 
 module.exports = mongoose.model('Question', questionSchema);

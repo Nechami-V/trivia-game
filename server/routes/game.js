@@ -1,10 +1,14 @@
 const express = require('express');
 const { 
-  getRandomQuestions,
-  startGame,
-  submitGameResult,
+  getAllActiveGames,
+  getGameDetails,
+  startGameSession,
+  submitGameResults,
+  getUserGameHistory
+} = require('../controllers/userGameController');
+const { 
   getLeaderboard
-} = require('../controllers/gameController');
+} = require('../controllers/gameController'); // Keep the old leaderboard function
 const { auth, checkGameLimit } = require('../middleware/auth');
 const { gameLimiter } = require('../middleware/rateLimiter');
 
@@ -13,219 +17,160 @@ const router = express.Router();
 /**
  * @swagger
  * tags:
- *   name: Game
- *   description: Game functionality and scoring
+ *   name: Games
+ *   description: Game selection and gameplay
  */
 
 /**
  * @swagger
- * /game/questions:
+ * /game/list:
  *   get:
- *     summary: Get random questions for game
- *     tags: [Game]
+ *     summary: Get all active games
+ *     tags: [Games]
+ *     responses:
+ *       200:
+ *         description: List of active games
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 games:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       image:
+ *                         type: string
+ *                       totalQuestions:
+ *                         type: number
+ *                       totalPlays:
+ *                         type: number
+ *                       averageScore:
+ *                         type: number
+ */
+
+/**
+ * @swagger
+ * /game/{id}/details:
+ *   get:
+ *     summary: Get game details with leaderboard
+ *     tags: [Games]
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: count
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Number of questions to retrieve
- *       - in: query
- *         name: difficulty
+ *       - in: path
+ *         name: id
  *         schema:
  *           type: string
- *           enum: [easy, medium, hard]
- *         description: Filter questions by difficulty
+ *         required: true
+ *         description: Game ID
  *     responses:
  *       200:
- *         description: Questions retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 questions:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Question'
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Game limit reached
+ *         description: Game details with leaderboard
+ *       404:
+ *         description: Game not found
  */
 
 /**
  * @swagger
- * /game/start:
+ * /game/{id}/start:
  *   post:
- *     summary: Start a new game
- *     tags: [Game]
+ *     summary: Start a game session
+ *     tags: [Games]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Game ID
  *     responses:
  *       200:
- *         description: Game started successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Game started"
- *                 canPlay:
- *                   type: boolean
- *                   example: true
- *                 gamesRemaining:
- *                   oneOf:
- *                     - type: string
- *                       example: "unlimited"
- *                     - type: number
- *                       example: 25
- *       403:
- *         description: Game limit reached
+ *         description: Game session started with questions
+ *       400:
+ *         description: No active questions in game
+ *       404:
+ *         description: Game not found
  */
 
 /**
  * @swagger
- * /game/result:
+ * /game/{id}/submit:
  *   post:
- *     summary: Submit game result
- *     tags: [Game]
+ *     summary: Submit game results
+ *     tags: [Games]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Game ID
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - score
- *               - gameMode
- *               - questionsAnswered
- *               - correctAnswers
- *               - gameDuration
  *             properties:
- *               score:
- *                 type: number
- *                 example: 850
- *               gameMode:
+ *               sessionId:
  *                 type: string
- *                 enum: [fast, normal]
- *                 example: "normal"
- *               questionsAnswered:
- *                 type: number
- *                 example: 10
- *               correctAnswers:
- *                 type: number
- *                 example: 8
+ *               answers:
+ *                 type: object
  *               gameDuration:
  *                 type: number
- *                 description: Game duration in seconds
- *                 example: 120
  *     responses:
  *       200:
- *         description: Game result submitted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Game result submitted successfully"
- *                 scoreRecord:
- *                   $ref: '#/components/schemas/Score'
- *                 gamesPlayed:
- *                   type: number
- *                   example: 5
+ *         description: Results saved and returned
  */
 
 /**
  * @swagger
- * /game/leaderboard:
+ * /game/history:
  *   get:
- *     summary: Get game leaderboard
- *     tags: [Game]
+ *     summary: Get user's game history
+ *     tags: [Games]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Number of top players to retrieve
  *       - in: query
  *         name: page
  *         schema:
  *           type: integer
  *           default: 1
- *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: gameId
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
- *         description: Leaderboard retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 leaderboard:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       rank:
- *                         type: number
- *                         example: 1
- *                       userName:
- *                         type: string
- *                         example: "יוסי כהן"
- *                       bestScore:
- *                         type: number
- *                         example: 1250
- *                       totalGames:
- *                         type: number
- *                         example: 15
- *                       lastPlayed:
- *                         type: string
- *                         format: date-time
- *                 pagination:
- *                   type: object
- *                   properties:
- *                     page:
- *                       type: number
- *                     limit:
- *                       type: number
- *                     total:
- *                       type: number
- *                     pages:
- *                       type: number
+ *         description: User's game history
  */
 
-// @route   GET /api/game/questions
-router.get('/questions', auth, checkGameLimit, gameLimiter, getRandomQuestions);
-
-// @route   POST /api/game/start
-router.post('/start', auth, checkGameLimit, startGame);
-
-// @route   POST /api/game/result
-router.post('/result', auth, submitGameResult);
-
-// @route   GET /api/game/leaderboard
-router.get('/leaderboard', getLeaderboard);
+// Routes
+router.get('/list', getAllActiveGames);
+router.get('/:id/details', auth, getGameDetails);
+router.post('/:id/start', auth, checkGameLimit, gameLimiter, startGameSession);
+router.post('/:id/submit', auth, submitGameResults);
+router.get('/history', auth, getUserGameHistory);
+router.get('/leaderboard', getLeaderboard); // Keep old global leaderboard
 
 module.exports = router;

@@ -85,11 +85,6 @@ const swaggerDefinition = {
           sephardiAudioFile: {
             type: 'string',
             description: 'Path to Sephardi pronunciation audio file'
-          },
-          difficulty: {
-            type: 'string',
-            enum: ['easy', 'medium', 'hard'],
-            description: 'Question difficulty level'
           }
         }
       },

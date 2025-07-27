@@ -9,8 +9,20 @@ const { apiLimiter } = require('./middleware/rateLimiter');
 
 // Import routes
 const authRoutes = require('./routes/auth');
-const gameRoutes = require('./routes/game');
+const gameRoutes = require('./routes/game'); // Back to normal game routes
 const settingsRoutes = require('./routes/settings');
+const adminRoutes = require('./routes/admin');
+// const gameManagementRoutes = require('./routes/gameManagement'); // Temporarily disabled
+
+// Import models to ensure they are registered with Mongoose
+require('./models/User');
+require('./models/Question');
+require('./models/Score');
+require('./models/Admin');
+require('./models/Game');
+require('./models/GameQuestion');
+require('./models/Setting');
+require('./models/Payment');
 
 const app = express();
 
@@ -19,12 +31,8 @@ connectDB();
 
 // Security middleware
 app.use(helmet());
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? 
-    ['your-production-domain.com'] : 
-    ['http://localhost:3000', 'http://localhost:19006'], // React Native Expo default port
-  credentials: true
-}));
+// 
+app.use(cors());
 
 // Rate limiting
 app.use('/api', apiLimiter);
@@ -37,6 +45,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/game', gameRoutes);
 app.use('/api/settings', settingsRoutes);
+// app.use('/api/admin/games', gameManagementRoutes); // Temporarily disabled - Specific route first
+app.use('/api/admin', adminRoutes); // General route second
 
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
@@ -51,6 +61,24 @@ app.get('/api/health', (req, res) => {
     success: true,
     message: 'Trivia Game API is running',
     timestamp: new Date().toISOString()
+  });
+});
+
+// Debug endpoint to check models and DB connection
+app.get('/api/debug', (req, res) => {
+  const mongoose = require('mongoose');
+  res.json({
+    success: true,
+    models: mongoose.modelNames(),
+    connectionState: mongoose.connection.readyState,
+    // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+    connectionStatus: {
+      0: 'disconnected',
+      1: 'connected', 
+      2: 'connecting',
+      3: 'disconnecting'
+    }[mongoose.connection.readyState],
+    dbName: mongoose.connection.name
   });
 });
 
