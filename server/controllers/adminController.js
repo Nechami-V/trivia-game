@@ -3,7 +3,7 @@ const { validationResult } = require('express-validator');
 const Admin = require('../models/Admin');
 const User = require('../models/User');
 const Question = require('../models/Question');
-const Game = require('../models/Game');
+// const Game = require('../models/Game'); // Disabled - not needed for Yiddish learning
 const Score = require('../models/Score');
 
 // Generate JWT Token for admin
@@ -248,62 +248,23 @@ const deactivateAdmin = async (req, res) => {
 // @access  Private (Admin)
 const getStats = async (req, res) => {
   try {
-    // Get basic counts
-    const [totalUsers, totalQuestions, totalGames, totalGamesPlayed] = await Promise.all([
+    // Get basic counts for Yiddish learning platform
+    const [totalUsers, totalQuestions, totalScores] = await Promise.all([
       User.countDocuments({ isActive: true }),
       Question.countDocuments({ isActive: true }),
-      Game.countDocuments({ isActive: true }),
       Score.countDocuments()
     ]);
 
-    // Get active users (users who played in last 30 days)
+    // Get active users (users who answered questions in last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const activeUsers = await Score.distinct('userId', {
       createdAt: { $gte: thirtyDaysAgo }
     }).then(userIds => userIds.length);
 
-    // Get top games
-    const topGames = await Score.aggregate([
-      {
-        $group: {
-          _id: '$gameId',
-          totalPlays: { $sum: 1 },
-          averageScore: { $avg: '$score' },
-          lastPlayed: { $max: '$createdAt' }
-        }
-      },
-      {
-        $lookup: {
-          from: 'games',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'gameInfo'
-        }
-      },
-      {
-        $unwind: '$gameInfo'
-      },
-      {
-        $sort: { totalPlays: -1 }
-      },
-      {
-        $limit: 5
-      },
-      {
-        $project: {
-          gameName: '$gameInfo.name',
-          totalPlays: 1,
-          averageScore: { $round: ['$averageScore', 1] },
-          lastPlayed: 1
-        }
-      }
-    ]);
-
-    // Get recent activity (last 10 games played)
+    // Get recent activity (last 10 question attempts)
     const recentActivity = await Score.find()
       .populate('userId', 'username')
-      .populate('gameId', 'name')
       .sort({ createdAt: -1 })
       .limit(10)
       .select('score questionsAnswered correctAnswers createdAt');
@@ -313,10 +274,8 @@ const getStats = async (req, res) => {
       stats: {
         totalUsers,
         totalQuestions,
-        totalGames,
-        totalGamesPlayed,
+        totalScores,
         activeUsers,
-        topGames,
         recentActivity
       }
     });
