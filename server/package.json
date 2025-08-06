@@ -1,7 +1,7 @@
 {
-  "name": "trivia-game-server",
+  "name": "yiddish-learning-server",
   "version": "1.0.0",
-  "description": "Trivia game backend server",
+  "description": "Yiddish language learning platform backend server",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",

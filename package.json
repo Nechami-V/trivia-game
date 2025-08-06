@@ -1,0 +1,34 @@
+{
+  "name": "triviagame",
+  "version": "1.0.0",
+  "description": "Cross-platform trivia game platform for learning vocabulary in different languages, designed for children.",
+  "main": "vite.config.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "web": "vite --host 0.0.0.0 --port 3000",
+    "server": "node server-simple.js",
+    "start": "node server-simple.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nechami-V/trivia-game.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Nechami-V/trivia-game/issues"
+  },
+  "homepage": "https://github.com/Nechami-V/trivia-game#readme",
+  "devDependencies": {
+    "vite": "^7.0.6"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  }
+}

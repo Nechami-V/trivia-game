@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק טריוויה - גרסת דפדפן</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .card p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .info-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            color: white;
+        }
+
+        .mobile-instructions {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        .qr-placeholder {
+            width: 200px;
+            height: 200px;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            font-weight: bold;
+            color: #667eea;
+            border: 3px dashed #667eea;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+        }
+
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 15px;
+            font-weight: bold;
+        }
+
+        .demo-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .game-preview {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            background: #f8f9fa;
+        }
+
+        .question-demo {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .answers-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .answer-demo {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .answer-demo:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .answers-demo {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎯 משחק טריוויה</h1>
+            <p>ברוכים הבאים למשחק הטריוויה הכי מגניב!</p>
+        </header>
+
+        <div class="cards-container">
+            <div class="card">
+                <h3>📱 אפליקציית מובייל</h3>
+                <p>התנסות מלאה עם ממשק נייד מותאם, התראות ועוד!</p>
+                <a href="#mobile-section" class="btn">הוראות הורדה</a>
+            </div>
+
+            <div class="card">
+                <h3>🌐 גרסת דפדפן</h3>
+                <p>שחקו ישירות בדפדפן ללא הורדה - מושלם למחשב!</p>
+                <a href="#demo-section" class="btn">התחילו לשחק</a>
+            </div>
+
+            <div class="card">
+                <h3>🎮 משחקים זמינים</h3>
+                <p>מגוון רחב של נושאים: היסטוריה, מדע, ספורט ועוד!</p>
+                <a href="#games-list" class="btn btn-secondary">רשימת משחקים</a>
+            </div>
+        </div>
+
+        <div class="mobile-instructions" id="mobile-section">
+            <h3>📱 איך להוריד את האפליקציה למובייל?</h3>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div>
+                    <strong>הורדת Expo Go:</strong>
+                    <br>הורידו את אפליקציית "Expo Go" מה-App Store (iOS) או Google Play (Android)
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div>
+                    <strong>סריקת QR Code:</strong>
+                    <br>פתחו את Expo Go וסרקו את הקוד הבא:
+                </div>
+            </div>
+
+            <div class="qr-placeholder">
+                QR Code יופיע כאן<br>
+                כשהשרת יהיה זמין
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div>
+                    <strong>התחלת המשחק:</strong>
+                    <br>האפליקציה תיטען ותוכלו להתחיל לשחק!
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section" id="demo-section">
+            <h3>🎮 דוגמה למשחק (גרסת דפדפן)</h3>
+            <p>כך נראה המשחק באפליקציה:</p>
+            
+            <div class="game-preview">
+                <div class="question-demo">
+                    שאלה לדוגמה: איזה כוכב לכת הוא הקרוב ביותר לשמש?
+                </div>
+                <div class="answers-demo">
+                    <div class="answer-demo" onclick="selectAnswer(this, false)">נוגה</div>
+                    <div class="answer-demo" onclick="selectAnswer(this, true)">כוכב חמה</div>
+                    <div class="answer-demo" onclick="selectAnswer(this, false)">מאדים</div>
+                    <div class="answer-demo" onclick="selectAnswer(this, false)">צדק</div>
+                </div>
+            </div>
+            
+            <p style="margin-top: 15px; font-style: italic; color: #666;">
+                💡 זו רק דוגמה - האפליקציה המלאה כולל מאות שאלות במגוון נושאים!
+            </p>
+        </div>
+
+        <div class="info-section" id="games-list">
+            <h3>🎯 קטגוריות משחקים זמינות</h3>
+            <div class="cards-container" style="margin-top: 20px;">
+                <div class="card">
+                    <h4>🏛️ היסטוריה</h4>
+                    <p>שאלות על אירועי העבר, דמויות חשובות ותקופות היסטוריות</p>
+                </div>
+                <div class="card">
+                    <h4>🔬 מדע וטכנולוגיה</h4>
+                    <p>גילויים מדעיים, המצאות והתקדמות טכנולוגית</p>
+                </div>
+                <div class="card">
+                    <h4>⚽ ספורט</h4>
+                    <p>עובדות על ספורטאים, תחרויות ושיאים עולמיים</p>
+                </div>
+                <div class="card">
+                    <h4>🌍 גיאוגרפיה</h4>
+                    <p>מדינות, ערים, נהרות והרים מסביב לעולם</p>
+                </div>
+                <div class="card">
+                    <h4>🎬 בידור ותרבות</h4>
+                    <p>סרטים, מוזיקה, ספרים ואמנות</p>
+                </div>
+                <div class="card">
+                    <h4>🍽️ אוכל ומשקאות</h4>
+                    <p>מתכונים, מאכלים מסורתיים ותרבות הקולינריה</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectAnswer(element, isCorrect) {
+            // Clear previous selections
+            document.querySelectorAll('.answer-demo').forEach(el => {
+                el.style.background = '';
+                el.style.borderColor = '#ddd';
+                el.style.color = '#333';
+            });
+
+            // Highlight selected answer
+            if (isCorrect) {
+                element.style.background = '#4caf50';
+                element.style.borderColor = '#4caf50';
+                element.style.color = 'white';
+                setTimeout(() => {
+                    alert('🎉 כל הכבוד! תשובה נכונה!');
+                }, 300);
+            } else {
+                element.style.background = '#f44336';
+                element.style.borderColor = '#f44336';
+                element.style.color = 'white';
+                setTimeout(() => {
+                    alert('❌ לא נכון. התשובה הנכונה היא: כוכב חמה');
+                }, 300);
+            }
+
+            // Show correct answer after a moment
+            setTimeout(() => {
+                document.querySelectorAll('.answer-demo').forEach((el, index) => {
+                    if (index === 1) { // Second answer is correct
+                        el.style.background = '#4caf50';
+                        el.style.borderColor = '#4caf50';
+                        el.style.color = 'white';
+                    }
+                });
+            }, 2000);
+        }
+
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Add animation to cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>
