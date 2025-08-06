@@ -6,13 +6,14 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 const connectDB = require('./config/database');
 const { apiLimiter } = require('./middleware/rateLimiter');
+const { createDefaultAdmin } = require('./utils/createDefaultAdmin');
 
 // Import routes
 const authRoutes = require('./routes/auth');
 const gameRoutes = require('./routes/game'); // Back to normal game routes
 const settingsRoutes = require('./routes/settings');
 const adminRoutes = require('./routes/admin');
-// const gameManagementRoutes = require('./routes/gameManagement'); // Temporarily disabled
+const gameManagementRoutes = require('./routes/gameManagement'); // Re-enabled
 
 // Import models to ensure they are registered with Mongoose
 require('./models/User');
@@ -28,6 +29,9 @@ const app = express();
 
 // Connect to database
 connectDB();
+
+// Create default admin if none exists
+createDefaultAdmin();
 
 // Security middleware
 app.use(helmet());
@@ -45,7 +49,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/game', gameRoutes);
 app.use('/api/settings', settingsRoutes);
-// app.use('/api/admin/games', gameManagementRoutes); // Temporarily disabled - Specific route first
+app.use('/api/admin/games', gameManagementRoutes); // Re-enabled - Specific route first
 app.use('/api/admin', adminRoutes); // General route second
 
 // Swagger Documentation

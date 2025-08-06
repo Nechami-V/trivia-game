@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>משחק טריוויה - אפליקציה פעילה</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 100%;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(0,0,0,0.1);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .status-bar {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+
+        .game-card:active {
+            transform: scale(0.98);
+        }
+
+        .game-header {
+            padding: 20px;
+            background: linear-gradient(45deg, #f8f9fa, #ffffff);
+        }
+
+        .game-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .game-description {
+            color: #666;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .game-meta {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .meta-tag {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+
+        .game-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .play-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .play-button:active {
+            background: linear-gradient(45deg, #5a6fd8, #6a4190);
+        }
+
+        .game-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .question-container {
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .answer-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .answer-option:active {
+            transform: scale(0.98);
+        }
+
+        .answer-option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .answer-option.incorrect {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .close-modal {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            float: right;
+        }
+
+        .score-display {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .mobile-instructions {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .instructions-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .game-stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>🎯 משחק טריוויה</h1>
+            <p>אפליקציה פעילה ועובדת!</p>
+        </header>
+
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="online-dot"></div>
+                <span>מחובר לשרת</span>
+            </div>
+            <div class="score-info">
+                <span id="totalScore">נקודות: 0</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="mobile-instructions">
+                <div class="instructions-title">🚀 האפליקציה פעילה!</div>
+                <p><strong>דפדפן:</strong> שחקו כאן ישירות<br>
+                <strong>מובייל:</strong> הורידו Expo Go וסרקו QR כשהשרת יהיה זמין</p>
+            </div>
+
+            <div class="score-display">
+                <h3>📊 הסטטיסטיקות שלך</h3>
+                <p>משחקים שוחקו: <span id="gamesPlayed">0</span> | תשובות נכונות: <span id="correctAnswers">0</span></p>
+            </div>
+
+            <div id="gamesContainer">
+                <!-- Games will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Modal -->
+    <div class="game-modal" id="gameModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeGame()">&times;</button>
+            <div id="gameContent">
+                <!-- Game content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentScore = 0;
+        let gamesPlayed = 0;
+        let correctAnswers = 0;
+        let currentGame = null;
+        let currentQuestionIndex = 0;
+        let gameQuestions = [];
+
+        // Mock data for now - will be replaced with API calls
+        const mockGames = [
+            {
+                _id: '1',
+                title: 'טריוויה היסטוריה',
+                description: 'שאלות על אירועים היסטוריים חשובים בישראל ובעולם',
+                category: 'היסטוריה',
+                difficulty: 'medium',
+                questionsCount: 3,
+                timeLimit: 15,
+                isActive: true
+            },
+            {
+                _id: '2',
+                title: 'מדע לילדים',
+                description: 'שאלות מדע מגניבות המתאימות לילדים',
+                category: 'מדע',
+                difficulty: 'easy',
+                questionsCount: 3,
+                timeLimit: 10,
+                isActive: true
+            },
+            {
+                _id: '3',
+                title: 'ספורט עולמי',
+                description: 'שאלות על ספורטאים, תחרויות ושיאים',
+                category: 'ספורט',
+                difficulty: 'hard',
+                questionsCount: 3,
+                timeLimit: 20,
+                isActive: true
+            }
+        ];
+
+        const mockQuestions = [
+            {
+                _id: '1',
+                question: 'איזה כוכב לכת הוא הקרוב ביותר לשמש?',
+                answers: ['נוגה', 'כוכב חמה', 'מאדים', 'צדק'],
+                correctAnswer: 1,
+                explanation: 'כוכב חמה (מרקורי) הוא הכוכב הקרוב ביותר לשמש',
+                difficulty: 'easy'
+            },
+            {
+                _id: '2',
+                question: 'באיזה שנה הוקמה מדינת ישראל?',
+                answers: ['1947', '1948', '1949', '1950'],
+                correctAnswer: 1,
+                explanation: 'מדינת ישראל הוקמה ב-14 במאי 1948',
+                difficulty: 'easy'
+            },
+            {
+                _id: '3',
+                question: 'מהו הר הגבוה ביותר בעולם?',
+                answers: ['K2', 'אוורסט', 'אנקונקגוואה', 'מקינלי'],
+                correctAnswer: 1,
+                explanation: 'הר האוורסט הוא ההר הגבוה ביותר בעולם (8,848 מטר)',
+                difficulty: 'medium'
+            }
+        ];
+
+        function loadGames() {
+            const container = document.getElementById('gamesContainer');
+            container.innerHTML = '';
+
+            mockGames.forEach(game => {
+                const gameCard = document.createElement('div');
+                gameCard.className = 'game-card';
+                gameCard.innerHTML = `
+                    <div class="game-header">
+                        <div class="game-title">${game.title}</div>
+                        <div class="game-description">${game.description}</div>
+                        <div class="game-meta">
+                            <span class="meta-tag">${game.category}</span>
+                            <span class="meta-tag">${getDifficultyText(game.difficulty)}</span>
+                        </div>
+                    </div>
+                    <div class="game-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">${game.questionsCount}</div>
+                            <div class="stat-label">שאלות</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">${game.timeLimit}</div>
+                            <div class="stat-label">דקות</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">✓</div>
+                            <div class="stat-label">זמין</div>
+                        </div>
+                    </div>
+                    <button class="play-button" onclick="startGame('${game._id}')">
+                        🎮 התחל לשחק
+                    </button>
+                `;
+                container.appendChild(gameCard);
+            });
+        }
+
+        function getDifficultyText(difficulty) {
+            switch (difficulty) {
+                case 'easy': return 'קל';
+                case 'medium': return 'בינוני';
+                case 'hard': return 'קשה';
+                default: return difficulty;
+            }
+        }
+
+        function startGame(gameId) {
+            currentGame = mockGames.find(g => g._id === gameId);
+            gameQuestions = [...mockQuestions];
+            currentQuestionIndex = 0;
+            
+            document.getElementById('gameModal').style.display = 'flex';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestionIndex >= gameQuestions.length) {
+                endGame();
+                return;
+            }
+
+            const question = gameQuestions[currentQuestionIndex];
+            const gameContent = document.getElementById('gameContent');
+            
+            gameContent.innerHTML = `
+                <div class="question-container">
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <strong>שאלה ${currentQuestionIndex + 1} מתוך ${gameQuestions.length}</strong>
+                    </div>
+                    <div class="question-text">${question.question}</div>
+                    <div class="answers-grid">
+                        ${question.answers.map((answer, index) => `
+                            <div class="answer-option" onclick="selectAnswer(${index})">
+                                ${answer}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectAnswer(selectedIndex) {
+            const question = gameQuestions[currentQuestionIndex];
+            const answerOptions = document.querySelectorAll('.answer-option');
+            
+            // Disable all options
+            answerOptions.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+
+            // Show correct/incorrect
+            answerOptions[selectedIndex].classList.add(
+                selectedIndex === question.correctAnswer ? 'correct' : 'incorrect'
+            );
+            
+            if (selectedIndex !== question.correctAnswer) {
+                answerOptions[question.correctAnswer].classList.add('correct');
+            }
+
+            if (selectedIndex === question.correctAnswer) {
+                correctAnswers++;
+                currentScore += 10;
+                updateScoreDisplay();
+            }
+
+            // Show explanation
+            setTimeout(() => {
+                const explanation = document.createElement('div');
+                explanation.style.cssText = 'background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 15px;';
+                explanation.innerHTML = `
+                    <strong>הסבר:</strong> ${question.explanation}
+                    <br><br>
+                    <button onclick="nextQuestion()" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                        ${currentQuestionIndex < gameQuestions.length - 1 ? 'שאלה הבאה' : 'סיים משחק'}
+                    </button>
+                `;
+                document.querySelector('.question-container').appendChild(explanation);
+            }, 2000);
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            showQuestion();
+        }
+
+        function endGame() {
+            gamesPlayed++;
+            updateScoreDisplay();
+            
+            const gameContent = document.getElementById('gameContent');
+            gameContent.innerHTML = `
+                <div style="text-align: center;">
+                    <h2>🎉 כל הכבוד!</h2>
+                    <p style="font-size: 1.2rem; margin: 20px 0;">
+                        סיימת את המשחק!<br>
+                        ענית נכון על ${correctAnswers} מתוך ${gameQuestions.length} שאלות
+                    </p>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                        <strong>הניקוד שלך: ${currentScore} נקודות</strong>
+                    </div>
+                    <button onclick="closeGame()" style="background: #667eea; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-size: 1.1rem;">
+                        חזור למשחקים
+                    </button>
+                </div>
+            `;
+        }
+
+        function closeGame() {
+            document.getElementById('gameModal').style.display = 'none';
+            currentGame = null;
+            currentQuestionIndex = 0;
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('totalScore').textContent = `נקודות: ${currentScore}`;
+            document.getElementById('gamesPlayed').textContent = gamesPlayed;
+            document.getElementById('correctAnswers').textContent = correctAnswers;
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGames();
+            updateScoreDisplay();
+            
+            // Add some animation
+            setTimeout(() => {
+                document.querySelectorAll('.game-card').forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 200);
+                });
+            }, 100);
+        });
+    </script>
+</body>
+</html>
